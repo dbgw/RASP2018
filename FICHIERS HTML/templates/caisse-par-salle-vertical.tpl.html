@@ -1,0 +1,196 @@
+<div class="clock"><span></span></div>
+
+<ul class="salles">
+{{#salles}}
+  <li class="salle" data-numero={{numero}}>
+    <div class="nom slug-{{slug}}"><span>{{nom}}</span></div>
+    <div class="type"><span>{{type}}</span></div>
+    <div class="numero"><span>{{numero}}</span></div>
+    {{#films}}
+    <div class="film">
+      <div class="titre"><span>{{title}}</span></div>
+      <ul class="seances">
+        {{#seances}}
+          <li class="horaire"><span>{{horaire}}</span></li>
+        {{/seances}}
+      </ul>
+      <div class="info">
+        {{#duree}}<div class="duree"><span>{{duree}}</span></div>{{/duree}}
+        {{#seances}}<div class="version slug-{{version}} horaire-{{horaire}}" style="display:none;"><span>{{version}}</span></div>{{/seances}}
+        {{#public}}<div class="public slug-{{slug}}"><span>{{name}}</span></div>{{/public}}
+        {{#dimension}}<div class="dimension slug-{{slug}}"><span>{{name}}</span></div>{{/dimension}}
+      </div>
+    </div>
+    {{/films}}
+    <div class="nb-places"><span></span></div>
+  </li>
+{{/salles}}
+</ul>
+
+<script>
+// Backup des données de caisse, à comparer avant chaque mise à jour
+var caisseDataLoaded = '';
+
+// Par défaut on masque tous les films
+$('.film').hide();
+// Mise à jour régulière du film affiché (= séance la plus proche)
+initFilmUpdates();
+// Mise à jour régulière des données de caisse
+initCaisseUpdates();
+// Mise à jour horloge
+initClock();
+
+// Mise à jour défilement
+initSwitchPage();
+
+// Mise à jour régulière du film affiché (= séance la plus proche)
+function initFilmUpdates() {
+  // Combien de minutes après le début de la séance laisse-t-on affichée la séance ?
+  // par défaut, 60 minutes, mais on peut le surcharger dans template_data du player
+  var display_duration = 60;
+  if(dataLoaded.template_data !== null && typeof(dataLoaded.template_data.display_duration) !== "undefined")
+    display_duration = dataLoaded.template_data.display_duration;
+
+  var now = new Date((new Date()).getTime() - display_duration * 60 * 1000);
+  // Masquage de tous les films
+  $('.film').hide();
+  $('.film .version').hide();
+  // Affichage du bon film par salle
+  $('.salle').each(function() {
+    // On détermine quel horaire est le plus proche parmi la liste des séances affichables :
+    var closestHoraire = false;
+    // On récupère tous les horaires, on les trie par ordre chronologique
+    var horaires = $(this).find('.film .seances .horaire').removeClass('selected').sort(function(a, b) { return $(a).text().localeCompare($(b).text()); });
+    // On sélectionne la première séance à venir (horaire supérieur à "now")
+    for (var i = 0, len = horaires.length; i < len; i++) {
+      // On sélectionne la première séance à venir
+      if (isIncoming($(horaires[i]).text(), now)) {
+        closestHoraire = $(horaires[i]);
+        break;
+      }
+    }
+    // Si on n'a pas trouvé de séance convenable, on prend la dernière de la journée
+    if (!closestHoraire) closestHoraire = horaires.last();
+    // Afficher le film correspondant
+    closestHoraire.addClass('selected').parents('.film').show();
+    closestHoraire.parents('.film').find('.version.horaire-'+closestHoraire.text()).show()
+  });
+  // Répéter toutes les minutes
+  setTimeout(initFilmUpdates, 60000);
+}
+
+// Mise à jour régulière des données de caisse (places restantes)
+function initCaisseUpdates() {
+  //Seuil et texte à afficher un fois le seuil du nombre de place dispo infèrieur
+  var seuil = 0;
+  if(dataLoaded.template_data !== null && typeof(dataLoaded.template_data.seuil) !== "undefined")
+    seuil = parseInt(dataLoaded.template_data.seuil);
+  var complet_txt = 'COMPLET';
+  if(dataLoaded.template_data !== null && typeof(dataLoaded.template_data.complet_txt) !== "undefined")
+    complet_txt = dataLoaded.template_data.complet_txt;
+
+  // Lire le fichier de caisse et en extraire les données salle par salle
+  parseCaisseFile(function(data) {
+    // Si rien n'a changé, on ne fait rien => NON, CAR SINON CA NE TIENT PAS COMPTE DU CHANGEMENT DE SEANCE
+    // if (caisseDataLoaded == JSON.stringify(data)) return;
+    // else caisseDataLoaded = JSON.stringify(data);
+    // Pour chaque séance affichée
+    $('.film .seances .horaire.selected').each(function() {
+      // Récupérer la salle correspondant à la séance dans le DOM
+      var salle = $(this).parents('.salle');
+      // Récupérer les données de la séance dans caisseDataLoaded, exemple : caisseDataLoaded[3]['seances']['19H50'] (salle 3, séance de 19h50)
+      if(data[salle.data('numero')] != 'undefined') {
+        var seanceData = data[salle.data('numero')]['seances'][$(this).text()];
+        // Mettre à jour la donnée dans le DOM
+        if (seanceData != undefined) {
+		  if (parseInt(seanceData['nb_places'])<=seuil) {
+			//Si le seuil est atteint, afficher le texte
+			salle.find('.nb-places span').text(complet_txt);
+		  } else {
+			//Sinon, comportement normal, afficher le nombre de place
+			salle.find('.nb-places span').text(seanceData['nb_places']);
+		  }
+
+        } else {
+          salle.find('.nb-places span').text('');
+        }
+      }
+    })
+  });
+  // Répéter toutes les 2 secondes
+  setTimeout(initCaisseUpdates, 2000);
+}
+
+// Mise à jour horloge
+function initClock() {
+  var now = new Date();
+  $('.clock span').text(now.getHours() + 'H' + ('0' + now.getMinutes()).slice(-2));
+  // Répéter toutes les 20 secondes
+  setTimeout(initClock, 30000);
+}
+
+// Mise à jour page (défilement des pages s'il y a plus de salles que de slots)
+function initSwitchPage() {
+  // Détermination du nombre de slots défini par page
+  if (dataLoaded.template_data !== null && typeof(dataLoaded.template_data.nb_slots) !== "undefined") {
+    var nbSlots = Number(dataLoaded.template_data.nb_slots);
+    // S'il y a assez de slots, pas de défilement
+    if (nbSlots >= $('.salle').length) {
+      return;
+    }
+  }
+  // Si le nombre de slots n'est pas défini, on met tout sur une seule page
+  else {
+    return;
+  }
+  // On détermine le premier slot à afficher
+  // Il s'agit du slot placé tout de suite après le dernier slot actuellement visible
+  // (s'il n'y a pas de slot après le dernier slot visible, on repart à 0 = début de la liste)
+  var firstSlotToShow = $('.salle').last().is(':visible') ? 0 : $('.salle').index($('.salle:visible').last()) + 1;
+  // Masquer tous les slots puis afficher les [nbSlots] slots à partir du [firstSlotToShow]
+  $('.salle').hide().slice(firstSlotToShow, firstSlotToShow+nbSlots).show();
+  // Répéter toutes les 20 secondes
+  setTimeout(initSwitchPage, 15000);
+}
+
+// Parsing du fichier de caisse et extraction d'un tableau de données
+function parseCaisseFile(callback) {
+  // Ouverture du fichier de caisse
+  $.get('./data/DAYFILE.TXT?v=' + Math.random(), function(data) {
+    // Date d'aujourd'hui au format YYYYMMDD, pour filtrer sur les séances du jour
+    var today = new Date(), today = today.getUTCFullYear() + ('0' + (today.getMonth()+1)).slice(-2) + ('0' + today.getDate()).slice(-2);
+    // Résultat à renvoyer plus tard à la fonction de callback
+    var salles = {};
+    // Split du fichier ligne par ligne
+    var lines = data.split("\r\n");
+    // Lecture ligne par ligne
+    for (var i in lines) {
+      // Les elements de la ligne sont séparés par des tab
+      var elements = lines[i].split("\t");
+      // On ne garde que les lignes qui correspondent aux séances du jour
+      if (elements[0] != today) continue;
+
+
+      // Le salle_id est le 2e element
+      // si on le rencontre pour la prem!re fois, on crée un objet salle qu'on rajoute au tableau global (salles)
+      var salle_id  = elements[2];
+      if (typeof(salles[salle_id]) == "undefined") {
+        salles[salle_id] = {};
+        salles[salle_id]['salle_id']  = salle_id;
+        salles[salle_id]['seances']   = {};
+      }
+
+      // On crée la séance
+      var seance = {};
+      var horaire = elements[4].replace(":", "H");
+      seance['date']          = elements[0];
+      seance['seance_id']     = elements[1];
+      seance['nb_places']     = elements[5];
+      salles[salle_id]['seances'][horaire] = seance;
+    }
+    // Fin du parsing du fichier
+    // Appel du callback
+    callback(salles);
+  });
+}
+</script>

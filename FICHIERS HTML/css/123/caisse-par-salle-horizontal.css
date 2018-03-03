@@ -1,0 +1,72 @@
+@font-face {
+    font-family: 'gorillaregular';
+    src: url('fonts/gorilla_black-webfont.eot');
+    src: url('fonts/gorilla_black-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/gorilla_black-webfont.woff') format('woff'),
+         url('fonts/gorilla_black-webfont.ttf') format('truetype'),
+         url('fonts/gorilla_black-webfont.svg#gorillaregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html,
+body {
+  margin:0;
+  padding:0;
+
+  background:#000;
+  overflow:hidden; /* permet de masquer les trucs qui dépassent - à enlever si la machine de test est dans une résolution moins élevée et que le scroll est nécessaire */
+ }
+.conteneur {
+  background:url('./img/caisseh.jpg') no-repeat;
+  background-size: contain;
+  font-family: 'gorillaregular', Helvetica, Arial, sans-serif; 
+  color:#fff; 
+  position:relative;
+  margin:0 auto;
+  height:1080px;
+  width:1920px;
+  font-size: 50px;
+  font-weight: bold;
+}
+
+
+.clock {position: absolute; left: 1680px; top: 1034px; color: white; font-family: Arial; font-weight:normal; font-size: 33px; }
+
+ul.salles { position: absolute; top: 132px; margin: 0; padding: 0; left:30px; right:0; list-style:none;}
+ul.salles li.salle { position:relative; height: 70px; line-height:30px; margin-bottom: 32px; }
+
+ul.salles li.salle > .nom { display:none; }
+ul.salles li.salle > .type { display:none; }
+ul.salles li.salle > .numero { position: absolute; font-family: "Times New Roman", Times, serif; font-size: 90px; font-style:oblique; color: #d1fbfd; }
+
+ul.salles li.salle .film { position: absolute; left:100px; right:270px; padding-left:220px; line-height:50px;}
+ul.salles li.salle .film ul.seances { position:absolute; left:-17px; top: 13px; padding:0px; list-style:none; width: 220px; text-align:center; line-height: 20px;}
+ul.salles li.salle .film .seances li { display: none; } /* on n'affiche pas les séances mais on les garde dans le dom pour afficher le bon film en fonction de l'heure */
+ul.salles li.salle .film .seances li.selected { display:block; color : red; }
+ul.salles li.salle .film .titre { overflow: hidden; width:975px; text-overflow: ellipsis; white-space: nowrap; color: #ecc13a;  }
+ul.salles li.salle .film .info { position:absolute; right:24px; top:-20px; }
+
+ul.salles li.salle .film .info > * { position: relative; display:inline-block; text-align:center; height:83px; width:65px; margin:0 -11px 0 0; }
+ul.salles li.salle .film .info > * { background-repeat:no-repeat; background-position: center center; background-size:contain; }
+
+ul.salles li.salle .film .info > * > span { display: none; } /*  on remplace le texte par des images, sauf pour la durée (cf. plus loin) */
+
+ul.salles li.salle .film .info > .duree { display:none; }
+
+ul.salles li.salle .film .info .public.slug-tous-publics   { background-image: url('./img/tpp2.png'); }
+ul.salles li.salle .film .info .public.slug-avertissement  { background-image: url('./img/avertp.png'); }
+ul.salles li.salle .film .info .public.slug-12-ans         { background-image: url('./img/12ansp.png'); }
+ul.salles li.salle .film .info .public.slug-16-ans         { background-image: url('./img/16ansp.png'); }
+ul.salles li.salle .film .info .public.slug-18-ans         { background-image: url('./img/18ansp.png'); }
+
+ul.salles li.salle .film .info .dimension {text-align: center;}
+ul.salles li.salle .film .info .dimension.slug-2d          { display:none; }
+ul.salles li.salle .film .info .dimension.slug-3d          { background-image: url('./img/3d2p.png'); }
+
+ul.salles li.salle .film .info .version.slug-vo            { background-image: url('./img/vitrine-picto-vo-c.png'); }
+ul.salles li.salle .film .info .version.slug-vf            { background-image: url('./img/vitrine-picto-vf-c.png'); }
+ul.salles li.salle .film .info .version.slug-vost            { background-image: url('./img/vitrine-picto-vost-c.png'); }
+
+ul.salles li.salle .nb-places { position:absolute; top:8px; right:58px; width:260px;text-align:center; color: #ecc13a; }
+

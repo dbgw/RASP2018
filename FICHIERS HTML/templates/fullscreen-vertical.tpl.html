@@ -1,0 +1,70 @@
+{{#films}}
+  <div class="film">
+    <div class="titre"><span>{{title}}</span></div>
+    <div class="affiche"><img src="{{affiche_url}}"></div>
+    <ul class="seances">
+      {{#seances}}
+        <li class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}" style="display:none;"><span>{{version}}</span></div></li>
+        <li class="delimiter"></li>
+      {{/seances}}
+    </ul>
+    <div class="info">
+      {{#duree}}<div class="duree"><span>{{duree}}</span></div>{{/duree}}
+      {{#seances}}<div class="version slug-{{version}} horaire-{{horaire}}" style="display:none;"><span>{{version}}</span></div>{{/seances}}
+      {{#public}}<div class="public slug-{{slug}}"><span>{{name}}</span></div>{{/public}}
+      {{#dimension}}<div class="dimension slug-{{slug}}"><span>{{name}}</span></div>{{/dimension}}
+    </div>
+  </div>
+{{/films}}
+
+<script>
+// Mise en forme des horaires
+$('.seances').each(function() {
+  // Liste des délimiteurs (tirets)
+  var delimiters = $(this).find('.delimiter');
+  // Remplacement du délimiteur par un BR à chaque fin de ligne (on part du principe qu'il y a 3 éléments par ligne)
+  var nbElementsPerLine = 3;
+  for (var i = nbElementsPerLine - 1, len = delimiters.length; i < len; i += nbElementsPerLine) {
+    $(delimiters[i]).replaceWith('<br />');
+  }
+  // Suppression du dernier délimiteur
+  delimiters.last().remove();
+})
+
+// Affichage du premier film
+$('.film').hide().first().show();
+
+// Défilement si plus d'un film
+if ($('.film').length > 1) {
+  setInterval(function() {
+    // Masquage du film courant (que l'on place à la fin du DOM)
+    $('.film').first().hide().insertAfter($('.film').last());
+    // Affichage du film suivant
+    $('.film').first().show();
+  }, 6000);
+}
+
+// Mise à jour des horaires sélectionnés toutes les minutes
+initUpdates();
+function initUpdates() {
+  // Sélection de la séance le plus proche
+  // Date actuelle moins 20 minutes (durée de sélection de l'horaire après le début de la séance)
+  var now = new Date((new Date()).getTime() - 20 * 60 * 1000);
+  // Déselectionner toutes les séances
+  $('.film .seances .horaire').removeClass('selected');
+  // Pour chaque film, on détermine s'il y a une séance proche
+  $('.film .seances').each(function() {
+    var horaires = $(this).find('.horaire');
+    for (var i = 0, len = horaires.length; i <len; i++) {
+      // On sélectionne la première séance à venir
+      if (isIncoming($(horaires[i]).find('span').first().text(), now)) {
+        $(horaires[i]).addClass('selected');
+        // Afficher la version correspondant à la séance choisie (cela peut différer d'une séance à l'autre)
+        $(horaires[i]).parents('.film').find('.version.horaire-'+$(horaires[i]).find('span').first().text()).show();
+        break;
+      }
+    }
+  });
+  setTimeout(initUpdates, 60000);
+}
+</script>

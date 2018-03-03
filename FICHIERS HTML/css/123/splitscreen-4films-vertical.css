@@ -1,0 +1,72 @@
+body {
+  margin:0;
+  padding:0;
+  background:#000;
+  overflow:hidden; /* permet de masquer les trucs qui dépassent - à enlever si la machine de test est dans une résolution moins élevée et que le scroll est nécessaire */
+}
+.conteneur {
+  background:url('./img/villeneuve4film4.jpg') no-repeat;
+  background-size: contain;
+  font-family: Verdana, Geneva, sans-serif; 
+  color:#000; 
+  position:relative;
+  margin:0 auto;
+  height:1920px;
+  width:1080px;
+  padding-top: 40px;
+  font-weight: normal;
+}
+
+.film { width: 540px; height:900px; float:left; left:-10px; position:relative; background: url('img/film-bg.png') 37px 0px no-repeat ; }
+.film .affiche { position:absolute; width:438px; height:575px; top: 95px; left:45px; }
+.film .affiche img { width:100%; height:100%; }
+
+.film .titre { position: absolute; left:50px; top:5px; display: table; width: 440px ; /*overflow: hidden;*/ height: 80px; /*padding:0px;*/}
+.film .titre span { display: table-cell; text-align:center; vertical-align: middle; color: #000; font: bold 40px/42px Arial, sans-serif; /*text-overflow : ellipsis*/ letter-spacing: 1px; /*white-space: nowrap;*/ }
+
+.film .info { position: absolute; left: 370px; top: 98px; width: 116px;}
+.film .info .genre, .info .realisateur, .info .interpretes { margin-bottom: 8px; display:none; }
+
+.info .interpretes { height: 118px; overflow: hidden;}
+
+.film .info .genre label, .info .realisateur label, .info .interpretes label {font-weight: bold; display: block; font-size: 17px;}
+.film .info .genre span, .info .realisateur span, .info .interpretes span { text-transform: capitalize;}
+
+.film .info .public, .film .info .dimension { background-position: center center; background-repeat: no-repeat; background-size: contain; width: 116px;  height: 48px; display: inline-block;text-align: center; }
+
+/*.film .info div[class^="slug-"] {position : absolute;}*/
+.film .info .public.slug-tous-publics { background-image: url('./img/tpp2.png');  }
+.film .info .public.slug-avertissement  { background-image: url('./img/avertp.png'); }
+.film .info .public.slug-12-ans         { background-image: url('./img/12ansp.png'); }
+.film .info .public.slug-16-ans         { background-image: url('./img/16ansp.png') ; }
+.film .info .public.slug-18-ans         { background-image: url('./img/18ansp.png') ; }
+
+.film .info .public.slug-tous-publics, .film .info .public.slug-avertissement, .film .info .public.slug-12-ans,
+.film .info .public.slug-16-ans, .film .info .public.slug-18-ans { position : absolute; left:30px; top: 590px;}
+
+.film .info .public.slug-tous-publics span, .film .info .public.slug-avertissement span,
+.film .info .public.slug-12-ans span, .film .info .public.slug-16-ans span, .film .info .public.slug-18-ans span {display: none;}
+
+.film .info .dimension.slug-2d          { display:none; }
+.film .info .dimension.slug-3d          { background-image: url('./img/3d2p.png');  position : absolute; left:-30px; top: 590px; }
+.film .info .dimension.slug-3d span { display: none;}
+
+.film .info .duree {font-size: 32px;  text-transform: lowercase; color : #fff; position: absolute; top:605px; left:-305px; }
+.film .info .duree span:before {content: "Dur\E9 e :"; display : block;font-size: 19px; color : #fff; text-transform: capitalize; display:none; }
+.film .info .duree span {line-height: 10px; margin-left: 10px; text-indent: -11px; }
+
+.film .resume {position: absolute; left: 40px; top: 538px; width: 446px; height: 204px; overflow: hidden; display:none; }
+
+.film ul.seances {position: absolute; top: 735px; width: 480px; }
+
+.film ul.seances li.horaire {list-style: none; text-transform: lowercase; font-size: 25px; font-weight: bold; font-family: Helvetica, sans-serif; line-height: 38px; float:left; display: block; margin-right: 76px; width: 80px; color: #fff; }
+.film ul.seances li.horaire:nth-child(3n) { margin-right: 0;}
+.film ul.seances li.horaire span { margin-right: 2px;}
+
+.film ul.seances li.horaire .version {background-position: 0 2px; background-repeat: no-repeat; background-size: contain; width: 80px;  height: 30px; display: inline-block !important;text-align: center; position: absolute; }
+.film ul.seances li.horaire .version span {display: none;}
+.film ul.seances li.horaire .version.slug-vo  { background-image: url('./img/vitrine-picto-vop.png'); margin-right: 76px;}
+.film ul.seances li.horaire .version.slug-vf  { background-image: url('./img/vitrine-picto-vfp.png'); margin-right: 76px;}
+.film ul.seances li.horaire .version.slug-vost  { background-image: url('./img/vitrine-picto-vostp.png'); margin-right: 76px; width: 57px;}
+
+

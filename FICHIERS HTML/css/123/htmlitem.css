@@ -1,0 +1,77 @@
+html,
+body {
+  margin:0;
+  padding:0;
+  background:#000;
+  overflow:hidden; /* permet de masquer les trucs qui dépassent - à enlever si la machine de test est dans une résolution moins élevée et que le scroll est nécessaire */
+}
+
+/* Affiche à droite */
+#html-item-container.horizontal.right .bg {
+	margin-top:3%;
+}
+#html-item-container.horizontal.right .bg img {
+	width:40%; 
+	display:block;
+	float: right;
+	padding-right:2%;
+	height: auto;
+}
+#html-item-container.horizontal.right div.message {
+	width: 50%;
+	display: block;
+	padding-left: 3%;
+	float: left;
+}
+
+#html-item-container.horizontal.right div.message .title { 
+	margin-top:2%;
+	margin-left: 0%;
+	font-size:3em;
+	color:white;
+	font-family:"Arial Black", Gadget, sans-serif;
+	text-align:left;
+}
+
+#html-item-container.horizontal.right div.message .content {
+	margin-top:0px;
+	font-size:2em;
+	color:white;
+	font-family: 'Futura Condensed', Helvetica, Arial, sans-serif;
+	font-weight:bold; 
+}
+
+/* Affiche à gauche */
+#html-item-container.horizontal.left .bg {
+	margin-top:3%;
+}
+#html-item-container.horizontal.left .bg img {
+	width:40%; 
+	display:block;
+	float: left;
+	padding-left:2%;
+	height: auto;
+}
+#html-item-container.horizontal.left div.message {
+	width: 50%;
+	display: block;
+	padding-left: 3%;
+	float: left;
+}
+
+#html-item-container.horizontal.left div.message .title { 
+	margin-top:2%;
+	margin-left: 0%;
+	font-size:3em;
+	color:white;
+	font-family:"Arial Black", Gadget, sans-serif;
+	text-align:left;
+}
+
+#html-item-container.horizontal.left div.message .content {
+	margin-top:0px;
+	font-size:2em;
+	color:white;
+	font-family: 'Futura Condensed', Helvetica, Arial, sans-serif;
+	font-weight:bold; 
+}

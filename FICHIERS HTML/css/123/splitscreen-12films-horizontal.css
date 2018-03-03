@@ -1,0 +1,69 @@
+html,
+body {
+  margin:0;
+  padding:0;
+
+  background:#000;
+  overflow:hidden; /* permet de masquer les trucs qui dépassent - à enlever si la machine de test est dans une résolution moins élevée et que le scroll est nécessaire */
+ }
+.conteneur {
+  background:url('./img/12films-bg.jpg') no-repeat;
+  background-size: contain;
+  font-family: Verdana, Geneva, sans-serif; 
+  color:#fff; 
+  position:relative;
+  margin:0 auto;
+  height:1080px;
+  width:1920px;
+  padding-top: 40px;
+  font-weight: normal;
+}
+.film { width: 320px; height:540px; float:left; left:6px; position:relative; background: url('img/film-bg.png') 37px 0px no-repeat ; }
+.film .affiche { position:absolute; width:135px; height:185px; top: -28px; left:0px; }
+.film .affiche img { width:100%; height:100%; }
+
+.film .titre { position: absolute; left:145px; top:-28px;  width: 160px ; overflow: hidden; max-height: 40px; /*padding:0px;*/ }
+.film .titre span { display: table-cell; text-align:left; vertical-align: left; color: #000; font: bold 9px/7px "Arial Black", Gadget, sans-serif,; font-weight:bold; /*text-overflow : ellipsis*/ letter-spacing: 0px; /*white-space: nowrap;*/ }
+
+.film .titre-original { display:none; }
+
+.film .info { position: absolute; left: 145px; top: 40px; width: 150px; font-size:8px; }
+.film .info .realisateur label { font-weight:bold; }
+.film .info .interpretes { margin-top:5px; }
+.film .info .interpretes label { font-weight:bold; }
+.film .info .genre { margin-top:5px; }
+.film .info .genre label { font-weight:bold; }
+.film .info .duree {font-size: 12px; font-weight:bold; text-transform: lowercase; color : #000; position: absolute; top:-28px; left:115px; }
+.film .info .duree label { display:none; }
+.film .info .duree span { line-height: 10px; margin-left: 10px; text-indent: -11px; }
+
+.film .resume { position: absolute; left: 0px; top: 160px; width: 300px; font-size:10px; }
+.film .resume label { display:none; }
+
+.film ul.seances { position:absolute; top:290px; left:-5px; font-size:9px; list-style:none; line-height:1px; font-family: Arial, Helvetica, sans-serif; width:270px; font-weight:bold; color:white; }
+.film ul.seances li.col { display:inline-block; width:57px; height: 92px; padding-left:10px; float:left; min-height:5px; margin-top: 8px; }
+
+/* version de la séance en face de chaque horaire */
+.film ul.seances .horaire .version            { margin-top:2px; margin-left:2px; background-repeat: no-repeat; background-size: contain; background-position: 3px 0px 0px 0px; overflow:visible; display: inline-block !important; }
+.film ul.seances .horaire .version.slug-vost  { width: 15px; height: 8px; background-image: url('./img/vitrine-picto-vost.png'); background-position: center 0px;}
+.film ul.seances .horaire .version.slug-vo    { width: 10px; height: 8px; background-image: url('./img/vitrine-picto-vop.png'); }
+.film ul.seances .horaire .version.slug-vf    { width: 10px; height: 8px; background-image: url('./img/vitrine-picto-vfp.png'); }
+.film ul.seances .horaire .version span       { display:none; }
+
+.film .info .version                    { display:none !important; } /* info déjà affichée en face de chaque horaire */
+
+.film .public-dimension span { display:none; }
+.film .public-dimension label { display:none; }
+
+.film .public-dimension { position:absolute; width:30px; height:70px; top:400px; left:265px; }
+
+.film .public.slug-tous-publics   { background-size:contain; width:30px; height:30px; background-image: url('./img/tpp2.png'); }
+.film .public.slug-avertissement  { background-size:contain; width:30px; height:30px; background-image: url('./img/avert.png'); }
+.film .public.slug-12-ans         { background-size:contain; width:30px; height:30px; background-image: url('./img/12ans.png'); }
+.film .public.slug-16-ans         { background-size:contain; width:30px; height:30px; background-image: url('./img/16ans.png'); }
+.film .public.slug-18-ans         { background-size:contain; width:30px; height:30px; background-image: url('./img/18ans.png'); }
+
+.film .dimension.slug-2d          { display:none; }
+.film .dimension.slug-3d          { margin-top:5px; background-size:contain; width:30px; height:30px; background-image: url('./img/3d2.png'); }
+
+.film ul.seances li.wed-col.col .horaire.selected span { color: red; }

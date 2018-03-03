@@ -1,0 +1,96 @@
+{{#films}}
+  <div class="film">
+    <div class="titre"><span>{{title}}</span></div>
+    <div class="affiche"><img src="{{affiche_url}}"></div>
+    {{#titre_original}}<div class="titre-original"><label>Titre original :</label> <span>{{titre_original}}</span></div>{{/titre_original}}
+    <div class="info">
+      {{#realisateur}}<div class="realisateur">            <label>Réalisateur :</label> <span>{{realisateur}}</span>   </div>{{/realisateur}}
+      {{#interpretes}}<div class="interpretes">            <label>Acteurs :</label>     <span>{{interpretes}}</span>   </div>{{/interpretes}}
+      {{#duree}}      <div class="duree">                  <label>Durée :</label>       <span>{{duree}}</span>         </div>{{/duree}}
+      {{#genre}}      <div class="genre">                  <label>Genre :</label>       <span>{{genre}}</span>         </div>{{/genre}}
+    </div>
+    {{#resume}}<div class="resume"><label>Synopsis :</label> <span>{{resume}}</span></div>{{/resume}}
+    <ul class="seances">
+      <li style="clear:both"></li>
+        {{#seances}}
+          <li class="wed-col col">{{#Wed}}<div class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}"><span>{{version}}</span></div></div>{{/Wed}}</li>
+          <li class="thu-col col">{{#Thu}}<div class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}"><span>{{version}}</span></div></div>{{/Thu}}</li>
+          <li class="fri-col col">{{#Fri}}<div class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}"><span>{{version}}</span></div></div>{{/Fri}}</li>
+          <li class="sat-col col">{{#Sat}}<div class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}"><span>{{version}}</span></div></div>{{/Sat}}</li>
+          <li class="sun-col col">{{#Sun}}<div class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}"><span>{{version}}</span></div></div>{{/Sun}}</li>
+          <li class="mon-col col">{{#Mon}}<div class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}"><span>{{version}}</span></div></div>{{/Mon}}</li>
+          <li class="tue-col col">{{#Tue}}<div class="horaire"><span>{{horaire}}</span><div class="version slug-{{version}} horaire-{{horaire}}"><span>{{version}}</span></div></div>{{/Tue}}</li>
+        {{/seances}}
+    </ul>
+    <div class="public-dimension">
+      {{#public}}     <div class="public slug-{{slug}}">   <label>Public :</label>      <span>{{name}}</span>          </div>{{/public}}
+      {{#dimension}}  <div class="dimension slug-{{slug}}"><label>Projection :</label>  <span>Numérique {{name}}</span></div>{{/dimension}}
+    </div>
+  </div>
+{{/films}}
+
+<script>
+
+//tri les films
+tinysort('div.film','div.titre span');
+
+// Mise en forme des horaires
+$('.seances').each(function() {
+  // Liste des délimiteurs (tirets)
+  var delimiters = $(this).find('.delimiter');
+  // Suppression du dernier délimiteur
+  delimiters.last().remove();
+})
+
+// Affichage films
+var nbFilms = $('.film').length;
+// Si pas assez de films, on complète avec les premiers
+for (var i = 0, len = nbFilms%12; i < nbFilms%12; i++) {
+  $('.film').last().after($($('.film')[i]).clone());
+  nbFilms++;
+}
+// Affichage 12 premiers films
+$('.film').hide().slice(0,12).show();
+
+// Défilement si plus de 12 films
+if (nbFilms > 12) {
+  setInterval(function() {
+    // Masquage des 12 films courants (que l'on place à la fin du DOM)
+    $('.film').slice(0,12).hide().insertAfter($('.film').last());
+    // Affichage des 12 films suivants
+    $('.film').slice(0,12).show();
+  }, 20000);
+}
+
+// Mise à jour des horaires sélectionnés toutes les minutes
+initUpdates();
+function initUpdates() {
+  // Sélection de la séance le plus proche
+  // Date actuelle moins 60 minutes (durée de sélection de l'horaire après le début de la séance)
+  var now = new Date((new Date()).getTime() - 60 * 60 * 1000);
+  
+  // on récupère le jour de la semaine
+  var today = (new Date()).getDay();
+  var days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  var day_of_week = days[today];
+  
+  // Déselectionner toutes les séances
+  $('.film .seances .horaire').removeClass('selected');
+  $('.film .version').hide();
+  // Pour chaque film, on détermine s'il y a une séance proche
+  $('.film .seances').each(function() {
+    var horaires = $(this).find('li.' + day_of_week +  '-col').find('.horaire');
+    // var horaires = $(this).find('.horaire');
+    for (var i = 0, len = horaires.length; i <len; i++) {
+      // On sélectionne la première séance à venir
+      if (isIncoming($(horaires[i]).text(), now)) {
+        $(horaires[i]).addClass('selected');
+        // Afficher la version correspondant à la séance choisie (cela peut différer d'une séance à l'autre)
+        $(horaires[i]).parents('.film').find('.version.horaire-'+$(horaires[i]).text()).show()
+        break;
+      }
+    }
+  });
+  setTimeout(initUpdates, 60000);
+}
+</script>

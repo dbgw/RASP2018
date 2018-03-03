@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Affichage Dynamique</title>
+</head>
+<body>
+  <div class="conteneur"></div>
+  <script src="js/jquery.js"></script>
+  <script src="js/mustache.js"></script>
+  <script src="js/tinysort.js"></script>
+  
+  
+  
+  
+  
+    <script>
+      $(document).ready(function() {
+      loadTemplate(true);
+    });
+    function getQueryVariable(variable) {
+      var query = window.location.search.substring(1);
+      var vars = query.split('&');
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+          return decodeURIComponent(pair[1]);
+        }
+      }
+      //console.log('Query variable %s not found', variable);
+      return -1;
+    }
+
+    // Fetch du player Id à partir de l'URL
+    var playerId        = decodeURIComponent(new RegExp("[\\?&]player_id=([^&#]*)").exec(location.search)[1].replace(/\+/g, " ")),
+        etabId          = decodeURIComponent(new RegExp("[\\?&]etablissement_id=([^&#]*)").exec(location.search)[1].replace(/\+/g, " ")), 
+        dataLoaded      = '',
+        reloadFrequency = 10;
+
+    var modelwidth="";
+    var modelheight="";
+    var redirectUrl;
+    var samsungtemplate = "";
+    var rasptemplate = "";
+    var hhost = "";
+
+    var model = getQueryVariable("model");
+    if (model == -1) model = 2 ; 
+    var orientation = getQueryVariable("orientation");
+    if (orientation == -1) orientation = "V";
+    var vitrine = getQueryVariable("vitrine");
+    if (vitrine == -1) vitrine = 0;  
+  
+       
+   
+
+    /**
+     * Chargement du template
+     */
+    function loadTemplate(firstLoad) {
+      var version = Math.random();
+      // Fetch des données du player en local
+      $.getJSON('./data/' + playerId + '.json?v=' + version, function(data) {
+        // On ne load le template que si les données récupérées sont différentes de celles qui sont déjà chargées
+        //   console.log(data);
+        
+        if (JSON.stringify(dataLoaded) == JSON.stringify(data))
+          return;
+        else
+          dataLoaded = data;
+          
+          
+        model       = dataLoaded['model'];
+        orientation = dataLoaded['orientation'];
+        vitrine     = dataLoaded['vitrine'];
+        
+        
+        
+        //console.log("model="+model+" orientation="+orientation+" vitrine="+vitrine);
+        hhost = window.location.host + hhost;
+        if (( model == 2)) {
+            modelheight = "720px"; modelwidth = "1280px";
+            if (orientation == 'V') 
+                modelwidth = "1080px"; modelheight = "1920px";
+  	       if (vitrine == 0) {
+  	           redirectUrl = "http://"+hhost+"/etablissement/" + etabId + "/previewsamsung/" + playerId ;
+               window.location = redirectUrl;
+  	           exit;
+  	       }
+  	    }    
+  	    else 
+  	    {
+  		    if ( model == 1 )           
+ 	        {	
+  	          // redirectUrl = "http://"+hhost+"/etablissement/" + etabId + "/previewraspberry/" + playerId ;
+  	          // window.location = redirectUrl;
+  	          // exit;
+ 	        }
+  	    }
+        
+         //console.log('./templates/' +  data.template_name + '.tpl.html?v=' + version);
+       $.ajax('./templates/' +  data.template_name + '.tpl.html?v=' + version).done(function(template) {
+          // Annuler tous les setTimeout et tous les setInterval (qui vont etre réinitialisés dans le template donc qui vont doublonner si on les garde)
+          var highestTimeoutId = setTimeout(";"); for (var i = 0; i <= highestTimeoutId; i++) clearTimeout(i);
+          var highestIntervalId = setTimeout(";"); for (var i = 0; i <= highestIntervalId; i++) clearInterval(i);
+          // Injection des données dans le template et affichage
+          
+            $('.conteneur').html(Mustache.render(template, data));
+          // Rechargement toutes les 10 secondes (sauf pour les queues)
+          if(data.template_name == 'queue' || data.template_name == 'queue-vertical')
+            reloadFrequency = 1;
+          setInterval(loadTemplate, reloadFrequency * 1000);
+        });
+        // Injection du css du template et du js pour la google font
+        if (firstLoad) {
+          var cssUrl = './css/' + etabId + '/' + data.template_name + '.css?v=' + version;
+          var jsUrl = 'js/' + etabId + '/googlefont.js';
+          $('head').append('<link rel="stylesheet" href="' + cssUrl + '" type="text/css" />');
+          $('<script>').attr('src', jsUrl).appendTo('head');
+          // Ajout du numéro de player comme classe css au cas où il y ait des différences de design entre les players
+          $('.conteneur').addClass('player-'+playerId);
+        }
+
+      });
+    }
+
+
+
+    /**
+     * Détermine si un horaire est proche ou pas de la date définie
+     */
+    function isIncoming(horaire, refDate) {
+      var hours = Number(horaire.replace(/[Hh].*/, ''));
+      var minutes = Number(horaire.replace(/.*[Hh]/, ''));
+      var refHours = refDate.getHours();
+      var refMinutes = refDate.getMinutes();
+      if (refHours < 4 && hours >= 4) return false;
+      if (refHours == hours && refMinutes <= minutes) return true;
+      if (refHours < hours) return true;
+      return false;
+    }
+
+/**
+     * Détermine si un horaire est passé par rapport à la date définie
+     */
+    function isPassed(horaire, refDate) {
+      var hours = Number(horaire.replace(/[Hh].*/, ''));
+      var minutes = Number(horaire.replace(/.*[Hh]/, ''));
+      var refHours = refDate.getHours();
+      var refMinutes = refDate.getMinutes();
+      // if (refHours < 4 && hours >= 4) return true;
+      if (refHours == hours && refMinutes >= minutes) return true;
+      if (refHours > hours) return true;
+      return false;
+    }
+
+  </script>
+</body>
+</html>

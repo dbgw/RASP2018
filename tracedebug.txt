@@ -1,0 +1,1 @@
+omxplayer '--win' "0 0 1920 1080" 'VIDEOS/249905 vo fa1.mp4'

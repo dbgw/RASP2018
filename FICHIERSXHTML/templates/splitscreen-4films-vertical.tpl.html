@@ -1,0 +1,87 @@
+{{#films}}
+  <div class="film">
+    <div class="titre"><span>{{title}}</span></div>
+    <div class="affiche"><img src="{{affiche_url}}"></div>
+    <div class="info">
+      {{#genre}}<div class="genre"><label>Genre </label><span>{{genre}}</span></div>{{/genre}}
+      {{#realisateur}}
+        <div class="realisateur"><label>Réalisateur </label> <span>{{realisateur}}</span></div>
+      {{/realisateur}}
+      {{#interpretes}}
+        <div class="interpretes"><label>Acteurs </label><span>{{interpretes}}</span></div>
+      {{/interpretes}}
+      {{#public}}<div class="public slug-{{slug}}"><span>{{name}}</span></div>{{/public}}
+      {{#dimension}}<div class="dimension slug-{{slug}}"><span>{{name}}</span></div>{{/dimension}}
+      {{#duree}}<div class="duree"><span>{{duree}}</span></div>{{/duree}}
+      
+    </div>
+    {{#resume}}<div class="resume"><span>{{resume}}</span></div>{{/resume}}
+    <ul class="seances">
+      {{#seances}}
+        <li class="horaire"><span>{{horaire}}</span>
+          <div class="version slug-{{version}} horaire-{{horaire}}" style="display:none;"><span>{{version}}</span></div>
+        </li>
+      {{/seances}}
+    </ul>
+
+  </div>
+{{/films}}
+
+<script>
+
+//tri les films
+tinysort('div.film','div.titre span');
+
+// Mise en forme des horaires
+$('.seances').each(function() {
+  // Liste des délimiteurs (tirets)
+  var delimiters = $(this).find('.delimiter');
+  // Suppression du dernier délimiteur
+  delimiters.last().remove();
+})
+
+// Affichage films
+var nbFilms = $('.film').length;
+// Si pas assez de films, on complète avec les premiers
+for (var i = 0, len = nbFilms%4; i < nbFilms%4; i++) {
+  $('.film').last().after($($('.film')[i]).clone());
+  nbFilms++;
+}
+// Affichage 4 premiers films
+$('.film').hide().slice(0,4).show();
+
+// Défilement si plus de 4 films
+if (nbFilms > 4) {
+  setInterval(function() {
+    // Masquage des 4 films courants (que l'on place à la fin du DOM)
+    $('.film').slice(0,4).hide().insertAfter($('.film').last());
+    // Affichage des 4 films suivants
+    $('.film').slice(0,4).show();
+  }, 20000);
+}
+
+// Mise à jour des horaires sélectionnés toutes les minutes
+initUpdates();
+function initUpdates() {
+  // Sélection de la séance le plus proche
+  // Date actuelle moins 60 minutes (durée de sélection de l'horaire après le début de la séance)
+  var now = new Date((new Date()).getTime() - 60 * 60 * 1000);
+  // Déselectionner toutes les séances
+  $('.film .seances .horaire').removeClass('selected');
+  $('.film .version').hide();
+  // Pour chaque film, on détermine s'il y a une séance proche
+  $('.film .seances').each(function() {
+    var horaires = $(this).find('.horaire');
+    for (var i = 0, len = horaires.length; i <len; i++) {
+      // On sélectionne la première séance à venir
+      if (isIncoming($(horaires[i]).children('span:first').text(), now)) {
+        $(horaires[i]).addClass('selected');
+        // Afficher la version correspondant à la séance choisie (cela peut différer d'une séance à l'autre)
+        $(horaires[i]).parents('.film').find('.version.horaire-'+$(horaires[i]).text()).show()
+        break;
+      }
+    }
+  });
+  setTimeout(initUpdates, 60000);
+}
+</script>
